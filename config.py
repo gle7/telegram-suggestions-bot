@@ -9,7 +9,7 @@ CHAT_ID = os.getenv("CHAT_ID") # To find out your channels ID use: https://t.me/
 # Database Data
 DATABASE_URL = os.getenv("DATABASE_URL")
 REMOVAL_INTERVAL = os.getenv("ROW_REMOVAL_INTERVAL")
-
+USERNAME = os.getenv("POSTGRES_USER")
 # Predefined text to send
 TEXT_MESSAGES = {
     'start': 'Ласкаво просимо 👋\n\nНапишіть своє запитання / пропозицію, і ми відповімо Вам найближчим часом.',
