@@ -18,7 +18,6 @@ def get_user_id(message: types.Message):
     else:
         user_id = message.reply_to_message.caption.split()[-3].replace("*", "")
         msg_id = message.reply_to_message.caption.split()[-1].replace("*", "")
-    print(user_id, msg_id)
     return user_id, msg_id
 
 
