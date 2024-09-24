@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 
 # Bot Data
 TOKEN = os.getenv("TELEGRAM_TOKEN") # Get your bot token using https://t.me/BotFather
@@ -9,7 +10,7 @@ CHAT_ID = os.getenv("CHAT_ID") # To find out your channels ID use: https://t.me/
 # Database Data
 DATABASE_URL = os.getenv("DATABASE_URL")
 REMOVAL_INTERVAL = os.getenv("ROW_REMOVAL_INTERVAL")
-USERNAME = os.getenv("POSTGRES_USER")
+USERNAME = (urlparse(DATABASE_URL)).path[1:]
 # Predefined text to send
 TEXT_MESSAGES = {
     'start': 'Ласкаво просимо 👋\n\nНапишіть своє запитання / пропозицію, і ми відповімо Вам найближчим часом.',
