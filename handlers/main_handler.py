@@ -13,21 +13,24 @@ from handlers.admin_handler import is_banned
 # Function to get user id from message more easy
 def get_user_id(message: types.Message):
     if message.reply_to_message.text:
-        user_id = message.reply_to_message.text.split()[-1].replace("*", "")
+        user_id = message.reply_to_message.text.split()[-3].replace("*", "")
+        msg_id = message.reply_to_message.text.split()[-1].replace("*", "")
     else:
-        user_id = message.reply_to_message.caption.split()[-1].replace("*", "")
-    return user_id
+        user_id = message.reply_to_message.caption.split()[-3].replace("*", "")
+        msg_id = message.reply_to_message.caption.split()[-1].replace("*", "")
+    print(user_id, msg_id)
+    return user_id, msg_id
 
 
 # Function which answers to banned users based on availability of ban reason
-async def answer_banned(user_id):
+async def answer_banned(user_id, msg_id):
     cursor.execute(f'SELECT ban_reason FROM ban_id WHERE user_id = {user_id}')
     reason = cursor.fetchone()[0]
     if reason is None:
-        await bot.send_message(chat_id=user_id, text=TEXT_MESSAGES['user_banned'])
+        await bot.send_message(chat_id=user_id, text=TEXT_MESSAGES['user_banned'], reply_to_message_id=msg_id)
     else:
         await bot.send_message(chat_id=user_id, text=TEXT_MESSAGES['user_reason_banned'].format(reason),
-                               parse_mode='HTML')
+                               parse_mode='HTML', reply_to_message_id=msg_id)
 
 
 # Starting message (when '/start' command is entered)
@@ -41,14 +44,14 @@ async def reply_to_user(message: types.Message):
     if not message.reply_to_message.from_user.is_bot or message.is_command():
         return
 
-    user_id = get_user_id(message)
+    user_id, msg_id = get_user_id(message)
+    await bot.send_message(chat_id=CHAT_ID, text=f"user_id = {user_id}, msg_id = {msg_id}")
     # Checking if user was banned earlier
     if is_banned(user_id):
         await message.reply(TEXT_MESSAGES['is_banned'])
         return
-
     bot_message = await bot.copy_message(chat_id=user_id, from_chat_id=message.chat.id,
-                                         message_id=message.message_id)  # Sending reply to user
+                                         message_id=message.message_id, reply_to_message_id=msg_id)  # Sending reply to user
     utc_time = datetime.utcnow()
     date_utc = utc_time.strftime('%Y-%m-%d %H:%M:%S')
     # Inserting user_message_id and bot_message_id to implement message editing option on both sides
@@ -63,23 +66,23 @@ async def forward_handler(message: types.Message):
     user_id = message.from_user.id
     # Checking if user is banned
     if is_banned(user_id):
-        await answer_banned(user_id)
+        await answer_banned(user_id, message.message_id)
         return
 
     # Defining type of the message
     if message.text and not message.is_command():
         await message.answer(TEXT_MESSAGES['pending'])
         text_user = TEXT_MESSAGES['message_template'].format(message.from_user.username, message.parse_entities() + '\n\n',
-                                                             user_id)
+                                                             user_id, message.message_id)
         bot_message = await bot.send_message(chat_id=CHAT_ID, parse_mode="HTML", text=text_user, entities=message.entities)
     # Stickers are not allowed from user's side because he might be not banned using reply
-    elif message.sticker:
+    elif message.sticker or message.poll:
         await message.reply(TEXT_MESSAGES['unsupported_format'])
         return
     else:
         caption = TEXT_MESSAGES['message_template'].format(message.from_user.username,
                                                            message.parse_entities() + '\n\n' if message.caption is not None
-                                                           else '', user_id)
+                                                           else '', user_id, message.message_id)
         bot_message = await bot.copy_message(chat_id=CHAT_ID, from_chat_id=user_id, message_id=message.message_id,
                                              caption=caption, parse_mode='HTML')
 
@@ -97,7 +100,7 @@ async def chat_edited_messages(message: types.Message):
     if not message.reply_to_message.from_user.is_bot or message.is_command():
         return
 
-    user_id = get_user_id(message)
+    user_id, msg_id = get_user_id(message)
     if is_banned(user_id):
         await message.reply(TEXT_MESSAGES['is_banned'])
         return
