@@ -14,10 +14,10 @@ def is_banned(user_id):
 # Function which helps to prevent SQL error (if chat participant answers to bot informing message)
 def check_replied(message: types.Message):
     if message.text:
-        if message.text.split()[-2].replace("*", "") != "id:":
+        if message.text.split()[-4].replace("*", "") != "id:":
             return False
     else:
-        if message.caption.split()[-2].replace("*", "") != "id:":
+        if message.caption.split()[-4].replace("*", "") != "id:":
             return False
     return True
 
@@ -28,7 +28,7 @@ async def ban_user(message: types.Message):
         await message.reply(TEXT_MESSAGES['reply_error'])
         return
 
-    user_id = main_handler.get_user_id(message)     # Getting user's id from the end of the message sent by bot
+    user_id, msg_id = main_handler.get_user_id(message)     # Getting user's id from the end of the message sent by bot
     try:
         reason = message.text.split(' ', maxsplit=1)[1]
     except Exception:
@@ -39,7 +39,7 @@ async def ban_user(message: types.Message):
         cursor.execute(f"INSERT INTO ban_id VALUES (%s, %s)", (user_id, reason))  # Inserting user into table
         base.commit()
         await message.reply(TEXT_MESSAGES['has_banned'])  # Informing that this user has been banned
-        await main_handler.answer_banned(user_id)
+        await main_handler.answer_banned(user_id, msg_id)
 
 
 # Function to unban user from ban list
@@ -48,7 +48,7 @@ async def unban_user(message: types.Message):
         await message.reply(TEXT_MESSAGES['reply_error'])
         return
 
-    user_id = main_handler.get_user_id(message)     # Getting user's id from the end of the message sent by bot
+    user_id, msg_id = main_handler.get_user_id(message)     # Getting user's id from the end of the message sent by bot
     if is_banned(user_id):
         cursor.execute(f"DELETE FROM ban_id WHERE user_id = {user_id}")  # Deleting user from ban list if it was found
         base.commit()
