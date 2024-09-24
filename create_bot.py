@@ -11,7 +11,7 @@ dp = Dispatcher(bot)
 db_user = USERNAME
 
 # Creating and accessing database for banning/unbanning users and editing messages, creating routine cleaner function
-base = psycopg2.connect(host=HOSTNAME, dbname=DATABASE, user=USERNAME, password=DB_PASS, port=PORT_ID)
+base = psycopg2.connect(DATABASE_URL)
 cursor = base.cursor(cursor_factory=psycopg2.extras.DictCursor)
 try:
     cursor.execute(f'CREATE TABLE IF NOT EXISTS ban_id (user_id int PRIMARY KEY, ban_reason text)')
