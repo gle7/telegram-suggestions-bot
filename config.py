@@ -7,11 +7,7 @@ TOKEN = os.getenv("TELEGRAM_TOKEN") # Get your bot token using https://t.me/BotF
 CHAT_ID = os.getenv("CHAT_ID") # To find out your channels ID use: https://t.me/getidsbot
 
 # Database Data
-HOSTNAME = os.getenv("POSTGRES_HOST")
-DATABASE = os.getenv("POSTGRES_DB")
-USERNAME = os.getenv("POSTGRES_USER")
-PORT_ID = os.getenv("POSTGRES_PORT")
-DB_PASS = os.getenv("POSTGRES_PASSWORD")
+DATABASE_URL = os.getenv("DATABASE_URL")
 REMOVAL_INTERVAL = os.getenv("ROW_REMOVAL_INTERVAL")
 
 # Predefined text to send
