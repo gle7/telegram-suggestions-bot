@@ -44,7 +44,6 @@ async def reply_to_user(message: types.Message):
         return
 
     user_id, msg_id = get_user_id(message)
-    await bot.send_message(chat_id=CHAT_ID, text=f"user_id = {user_id}, msg_id = {msg_id}")
     # Checking if user was banned earlier
     if is_banned(user_id):
         await message.reply(TEXT_MESSAGES['is_banned'])
